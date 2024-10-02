@@ -2,7 +2,7 @@ VALGRIND_FLAGS=--leak-check=full --track-origins=yes --show-reachable=yes --erro
 CFLAGS =-std=c99 -Wall -Wconversion -Wtype-limits -pedantic -Werror -O2 -g
 CC = gcc
 
-all: clean valgrind-alumno
+all: clean formatear valgrind-tp_abb valgrind-alumno
 
 valgrind-alumno: pruebas_alumno
 	valgrind $(VALGRIND_FLAGS) ./pruebas_alumno
@@ -10,11 +10,14 @@ valgrind-alumno: pruebas_alumno
 pruebas_alumno: src/*.c pruebas_alumno.c
 	$(CC) $(CFLAGS) src/*.c pruebas_alumno.c -o pruebas_alumno
 
-valgrind-ejemplo: ejemplo
-	valgrind $(VALGRIND_FLAGS) ./ejemplo
+valgrind-tp_abb: tp_abb
+	valgrind $(VALGRIND_FLAGS) ./tp_abb "ejemplos/pokedex.csv"
 
-ejemplo: src/*.c ejemplo.c
+tp_abb: src/*.c tp_abb.c
 	$(CC) $(CFLAGS) src/*.c ejemplo.c -o ejemplo
 
+formatear:
+	clang-format --style=file -i *.c src/*.c src/*.h
+
 clean:
-	rm -f pruebas_alumno ejemplo
+	rm -f pruebas_alumno tp_abb

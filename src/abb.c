@@ -35,7 +35,9 @@ void abb_destruir_todo(abb_t *abb, void (*destructor)(void *)){
  * Inserta el elemento. Devuelve true si pudo o false si no pudo.
  */
 bool abb_insertar(abb_t *abb, void *elemento){
-	return false;
+	if(abb == NULL)
+		return false;
+	return interna_insertar(abb->raiz, abb->comparador, elemento);
 }
 
 /**

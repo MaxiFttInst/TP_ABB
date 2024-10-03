@@ -10,6 +10,8 @@ struct params_internas {
 	bool seguir_iterando;
 };
 
+bool interna_insertar(nodo_t *nodo, int (*comparador)(void *, void *), void *elemento);
+
 size_t interna_inorden_recursivo(struct params_internas);
 
 size_t interna_preorden_recursivo(struct params_internas);

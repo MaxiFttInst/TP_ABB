@@ -4,7 +4,16 @@
 /**
  * Crea un ABB con un comparador.
  */
-abb_t *abb_crear(int (*comparador)(void *, void *));
+abb_t *abb_crear(int (*comparador)(void *, void *)){
+	if (comparador == NULL)
+		return NULL;
+
+	abb_t *nuevo_abb = calloc(1, sizeof(abb_t));
+	nuevo_abb->comparador = comparador;
+	nuevo_abb->raiz = NULL;
+	nuevo_abb->nodos = 0;
+	return nuevo_abb;
+}
 
 /**
  * Destruye el abb.
@@ -16,19 +25,18 @@ void abb_destruir(abb_t *abb){
 /**
  * Destruye el abb aplicando el destructor a los elementos del usuario.
  */
-bool destructor_adaptado_iterador(void *dato, void *ctx){
-	void (*destructor)(void*) = ctx;
-	destructor(dato);
-	return true;
-}
 void abb_destruir_todo(abb_t *abb, void (*destructor)(void *)){
-	abb_iterar_inorden(abb, destructor_adaptado_iterador, destructor);
+	if(abb->raiz != NULL)
+		interna_destruir_todo(abb->raiz, destructor);
+	free(abb);
 }
 
 /**
  * Inserta el elemento. Devuelve true si pudo o false si no pudo.
  */
-bool abb_insertar(abb_t *abb, void *elemento);
+bool abb_insertar(abb_t *abb, void *elemento){
+	return false;
+}
 
 /**
  * Quita el elemento buscado del arbol. Si lo encuentra y encontrado no es NULL,
@@ -36,18 +44,27 @@ bool abb_insertar(abb_t *abb, void *elemento);
  *
  * Devuelve true si pudo quitar el elemento.
  */
-bool abb_quitar(abb_t *abb, void *buscado, void **encontrado);
+bool abb_quitar(abb_t *abb, void *buscado, void **encontrado){
+	return false;
+}
 
 /**
  * Busca un elemento en el abb. Si lo encuentra lo devuelve. Caso contrario
  * devuelve NULL.
  */
-void *abb_obtener(abb_t *abb, void *elemento);
+void *abb_obtener(abb_t *abb, void *elemento){
+	return NULL;
+}
 
 /**
  * Devuelve la cantidad de elementos en el abb.
  */
-size_t abb_cantidad(abb_t *abb);
+size_t abb_cantidad(abb_t *abb){
+	if(abb == NULL)
+		return 0;
+
+	return abb->nodos;
+}
 
 /**
  * Recorre los elementos del abb en el orden específico y aplica la función f a
@@ -58,13 +75,31 @@ size_t abb_cantidad(abb_t *abb);
  * Devuelve la cantidad de veces que fue invocada la función f.
  */
 size_t abb_iterar_inorden(abb_t *abb, bool (*f)(void *, void *), void *ctx){
-	return interna_iterar_rec_inorder(abb->raiz, f, ctx);
+	struct params_internas p = {
+		.nodo = abb->raiz,
+		.f = f,
+		.ctx = ctx,
+		.seguir_iterando = true
+	};
+	return interna_inorden_recursivo(p);
 }
 size_t abb_iterar_preorden(abb_t *abb, bool (*f)(void *, void *), void *ctx){
-	return interna_iterar_rec_preorder(abb->raiz, f, ctx);
+	struct params_internas p = {
+		.nodo = abb->raiz,
+		.f = f,
+		.ctx = ctx,
+		.seguir_iterando = true
+	};
+	return interna_preorden_recursivo(p);
 }
 size_t abb_iterar_postorden(abb_t *abb, bool (*f)(void *, void *), void *ctx){
-	return interna_iterar_rec_postorder(abb->raiz, f, ctx);
+	struct params_internas p = {
+		.nodo = abb->raiz,
+		.f = f,
+		.ctx = ctx,
+		.seguir_iterando = true
+	};
+	return interna_postorden_recursivo(p);
 }
 
 /**

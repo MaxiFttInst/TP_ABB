@@ -6,6 +6,12 @@ int comparador_int(void *a, void *b)
 {
 	return *(int *)a - *(int *)b;
 }
+void prueba_creacion_destruccion(){
+	printf(CYAN "CREACION DESTRUCCION \n");
+	abb_t* arbol = abb_crear(comparador_int);
+	pa2m_afirmar(arbol != NULL, "El arbol es distinto de NULL");
+	abb_destruir(arbol);
+}
 /*
  * Aañade 10 elementos: 81 33 46 9 44 49 39 63 15 63
  * se espera: img/pruebas_esperado.jpg (iguales como hijos izquierdos)
@@ -109,7 +115,8 @@ void prueba_abb_integral()
 
 int main()
 {
-	pa2m_nuevo_grupo("============== ??? ===============");
+	pa2m_nuevo_grupo("============== PRUEBAS DE ARBOL ===============");
+	prueba_creacion_destruccion();
 	prueba_abb_integral();
 
 	return pa2m_mostrar_reporte();

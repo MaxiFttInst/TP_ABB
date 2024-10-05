@@ -4,13 +4,13 @@ CC = gcc
 
 all: clean formatear valgrind-tp_abb valgrind-alumno
 
-valgrind-alumno: pruebas_alumno
+valgrind-alumno: clean formatear pruebas_alumno
 	valgrind $(VALGRIND_FLAGS) ./pruebas_alumno
 
 pruebas_alumno: src/*.c pruebas_alumno.c
 	$(CC) $(CFLAGS) src/*.c pruebas_alumno.c -o pruebas_alumno
 
-valgrind-tp_abb: tp_abb
+valgrind-tp_abb: clean formatear tp_abb
 	valgrind $(VALGRIND_FLAGS) ./tp_abb "ejemplos/pokedex.csv"
 
 tp_abb: src/*.c tp_abb.c

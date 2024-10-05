@@ -4,29 +4,34 @@
 /**
  * Crea un ABB con un comparador.
  */
-abb_t *abb_crear(int (*comparador)(void *, void *)){
+abb_t *abb_crear(int (*comparador)(void *, void *))
+{
 	if (comparador == NULL)
 		return NULL;
 
 	abb_t *nuevo_abb = calloc(1, sizeof(abb_t));
-	nuevo_abb->comparador = comparador;
-	nuevo_abb->raiz = NULL;
-	nuevo_abb->nodos = 0;
+	if (nuevo_abb != NULL) {
+		nuevo_abb->comparador = comparador;
+		nuevo_abb->raiz = NULL;
+		nuevo_abb->nodos = 0;
+	}
 	return nuevo_abb;
 }
 
 /**
  * Destruye el abb.
  */
-void abb_destruir(abb_t *abb){
+void abb_destruir(abb_t *abb)
+{
 	abb_destruir_todo(abb, NULL);
 }
 
 /**
  * Destruye el abb aplicando el destructor a los elementos del usuario.
  */
-void abb_destruir_todo(abb_t *abb, void (*destructor)(void *)){
-	if(abb->raiz != NULL)
+void abb_destruir_todo(abb_t *abb, void (*destructor)(void *))
+{
+	if (abb->raiz != NULL)
 		interna_destruir_todo(abb->raiz, destructor);
 	free(abb);
 }
@@ -34,10 +39,11 @@ void abb_destruir_todo(abb_t *abb, void (*destructor)(void *)){
 /**
  * Inserta el elemento. Devuelve true si pudo o false si no pudo.
  */
-bool abb_insertar(abb_t *abb, void *elemento){
-	if(abb == NULL)
+bool abb_insertar(abb_t *abb, void *elemento)
+{
+	if (abb == NULL)
 		return false;
-	return interna_insertar(abb->raiz, abb->comparador, elemento);
+	return interna_insertar(&(abb->raiz), abb->comparador, elemento);
 }
 
 /**
@@ -46,23 +52,61 @@ bool abb_insertar(abb_t *abb, void *elemento){
  *
  * Devuelve true si pudo quitar el elemento.
  */
-bool abb_quitar(abb_t *abb, void *buscado, void **encontrado){
-	return false;
+bool abb_quitar(abb_t *abb, void *buscado, void **encontrado)
+{
+	if (abb == NULL)
+		return false;
+	if (abb->raiz == NULL)
+		return false;
+	nodo_t *anterior_encontrado = NULL;
+	nodo_t *nodo_encontrado = NULL;
+	nodo_encontrado = interna_obtener_nodo(
+		abb->raiz, buscado, abb->comparador, &anterior_encontrado);
+	if (nodo_encontrado == NULL)
+		return NULL;
+	*encontrado = nodo_encontrado->elemento;
+	if (nodo_encontrado->izq == NULL && nodo_encontrado->der != NULL) {
+		if (abb->comparador(anterior_encontrado, nodo_encontrado) < 0)
+			anterior_encontrado->der = nodo_encontrado->der;
+		else
+			anterior_encontrado->izq = nodo_encontrado->der;
+	} else if (nodo_encontrado->izq != NULL &&
+		   nodo_encontrado->der == NULL) {
+		if (abb->comparador(anterior_encontrado, nodo_encontrado) < 0)
+			anterior_encontrado->der = nodo_encontrado->der;
+		else
+			anterior_encontrado->izq = nodo_encontrado->der;
+	} else {
+		nodo_t *anterior_sucesor = NULL;
+		nodo_t *nodo_sucesor = interna_obtener_menor_y_anterior(
+			nodo_encontrado, &anterior_sucesor);
+		anterior_sucesor = nodo_sucesor->der;
+		nodo_sucesor->izq = nodo_encontrado->izq;
+		nodo_sucesor->der = nodo_encontrado->der;
+	}
+	free(encontrado);
+	return true;
 }
 
 /**
  * Busca un elemento en el abb. Si lo encuentra lo devuelve. Caso contrario
  * devuelve NULL.
  */
-void *abb_obtener(abb_t *abb, void *elemento){
-	return NULL;
+void *abb_obtener(abb_t *abb, void *elemento)
+{
+	if (abb == NULL)
+		return false;
+	nodo_t *algo = NULL;
+	return interna_obtener_nodo(abb->raiz, elemento, abb->comparador, &algo)
+		->elemento;
 }
 
 /**
  * Devuelve la cantidad de elementos en el abb.
  */
-size_t abb_cantidad(abb_t *abb){
-	if(abb == NULL)
+size_t abb_cantidad(abb_t *abb)
+{
+	if (abb == NULL)
 		return 0;
 
 	return abb->nodos;
@@ -76,30 +120,24 @@ size_t abb_cantidad(abb_t *abb){
  *
  * Devuelve la cantidad de veces que fue invocada la función f.
  */
-size_t abb_iterar_inorden(abb_t *abb, bool (*f)(void *, void *), void *ctx){
+size_t abb_iterar_inorden(abb_t *abb, bool (*f)(void *, void *), void *ctx)
+{
 	struct params_internas p = {
-		.nodo = abb->raiz,
-		.f = f,
-		.ctx = ctx,
-		.seguir_iterando = true
+		.nodo = abb->raiz, .f = f, .ctx = ctx, .seguir_iterando = true
 	};
 	return interna_inorden_recursivo(p);
 }
-size_t abb_iterar_preorden(abb_t *abb, bool (*f)(void *, void *), void *ctx){
+size_t abb_iterar_preorden(abb_t *abb, bool (*f)(void *, void *), void *ctx)
+{
 	struct params_internas p = {
-		.nodo = abb->raiz,
-		.f = f,
-		.ctx = ctx,
-		.seguir_iterando = true
+		.nodo = abb->raiz, .f = f, .ctx = ctx, .seguir_iterando = true
 	};
 	return interna_preorden_recursivo(p);
 }
-size_t abb_iterar_postorden(abb_t *abb, bool (*f)(void *, void *), void *ctx){
+size_t abb_iterar_postorden(abb_t *abb, bool (*f)(void *, void *), void *ctx)
+{
 	struct params_internas p = {
-		.nodo = abb->raiz,
-		.f = f,
-		.ctx = ctx,
-		.seguir_iterando = true
+		.nodo = abb->raiz, .f = f, .ctx = ctx, .seguir_iterando = true
 	};
 	return interna_postorden_recursivo(p);
 }
@@ -115,32 +153,35 @@ struct ctx_vectorizacion {
 	size_t posicion;
 	size_t tamanio;
 };
-bool vectorizadora_por_iteracion(void *dato, void* _ctx){
-	struct ctx_vectorizacion *ctx = (struct ctx_vectorizacion*)_ctx;
+bool vectorizadora_por_iteracion(void *dato, void *_ctx)
+{
+	struct ctx_vectorizacion *ctx = (struct ctx_vectorizacion *)_ctx;
 	bool resultado = false;
-	if(ctx->posicion < ctx->tamanio){
+	if (ctx->posicion < ctx->tamanio) {
 		ctx->vector[ctx->posicion] = dato;
 		ctx->posicion++;
 		resultado = true;
 	}
 	return resultado;
 }
-size_t abb_vectorizar_inorden(abb_t *abb, void **vector, size_t tamaño){
+size_t abb_vectorizar_inorden(abb_t *abb, void **vector, size_t tamaño)
+{
 	struct ctx_vectorizacion ctx = { .vector = vector,
-		.tamanio = tamaño,
-		.posicion = 0};
+					 .tamanio = tamaño,
+					 .posicion = 0 };
 	return abb_iterar_inorden(abb, vectorizadora_por_iteracion, &ctx);
 }
-size_t abb_vectorizar_preorden(abb_t *abb, void **vector, size_t tamaño){
+size_t abb_vectorizar_preorden(abb_t *abb, void **vector, size_t tamaño)
+{
 	struct ctx_vectorizacion ctx = { .vector = vector,
-		.tamanio = tamaño,
-		.posicion = 0};
+					 .tamanio = tamaño,
+					 .posicion = 0 };
 	return abb_iterar_preorden(abb, vectorizadora_por_iteracion, &ctx);
 }
-size_t abb_vectorizar_postorden(abb_t *abb, void **vector, size_t tamaño){
+size_t abb_vectorizar_postorden(abb_t *abb, void **vector, size_t tamaño)
+{
 	struct ctx_vectorizacion ctx = { .vector = vector,
-		.tamanio = tamaño,
-		.posicion = 0};
+					 .tamanio = tamaño,
+					 .posicion = 0 };
 	return abb_iterar_postorden(abb, vectorizadora_por_iteracion, &ctx);
 }
-

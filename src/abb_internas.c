@@ -83,12 +83,16 @@ nodo_t *interna_obtener_nodo(nodo_t *nodo, void *elemento,
 {
 	if (comparador(nodo->elemento, elemento) == 0)
 		return nodo;
-	if (comparador(elemento, nodo->elemento) > 0 && nodo->der != NULL)
+	if (comparador(elemento, nodo->elemento) > 0 && nodo->der != NULL) {
+		*anterior = nodo;
 		return interna_obtener_nodo(nodo->der, elemento, comparador,
-					    &nodo);
-	if (comparador(elemento, nodo->elemento) < 0 && nodo->izq != NULL)
+					    anterior);
+	}
+	if (comparador(elemento, nodo->elemento) < 0 && nodo->izq != NULL) {
+		*anterior = nodo;
 		return interna_obtener_nodo(nodo->izq, elemento, comparador,
-					    &nodo);
+					    anterior);
+	}
 	return NULL;
 }
 nodo_t *interna_obtener_menor_y_anterior(nodo_t *nodo, nodo_t **anterior)

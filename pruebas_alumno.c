@@ -13,6 +13,20 @@ void prueba_creacion_destruccion()
 	pa2m_afirmar(arbol != NULL, "El arbol es distinto de NULL");
 	abb_destruir(arbol);
 }
+void prueba_agregar_cosas()
+{
+	printf(CYAN "AGREGAR COSAS\n");
+	abb_t *arbol = abb_crear(comparador_int);
+	int valores[3] = { 81, 33, 46 };
+	bool fue_insertado = false;
+	for (int i = 0; i < 3; i++) {
+		fue_insertado = false;
+		fue_insertado = abb_insertar(arbol, &valores[i]);
+		pa2m_afirmar(fue_insertado, "Fue insertado");
+		abb_insertar(arbol, &valores[i]);
+	}
+	abb_destruir(arbol);
+}
 void prueba_obtener_nodo()
 {
 	printf(CYAN "OBTENER NODO \n");
@@ -54,7 +68,7 @@ void prueba_abb_integral()
 	printf(CYAN "PRUEBA ABB INTEGRAL \n");
 
 	abb_t *arbol = abb_crear(comparador_int);
-	int diez_valores[10] = { 81, 33, 46, 9, 33, 39, 39, 63, 15, 63 };
+	int diez_valores[10] = { 81, 33, 46, 9, 44, 49, 39, 63, 15, 63 };
 	bool fue_insertado = false;
 	for (int i = 0; i < 10; i++) {
 		fue_insertado = false;
@@ -141,8 +155,9 @@ void prueba_abb_integral()
 int main()
 {
 	pa2m_nuevo_grupo("============== PRUEBAS DE ARBOL ===============");
-	prueba_creacion_destruccion();
-	prueba_obtener_nodo();
+	// prueba_creacion_destruccion();
+	// prueba_agregar_cosas();
+	// prueba_obtener_nodo();
 	prueba_abb_integral();
 
 	return pa2m_mostrar_reporte();

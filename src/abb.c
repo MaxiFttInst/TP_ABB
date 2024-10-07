@@ -66,25 +66,42 @@ bool abb_quitar(abb_t *abb, void *buscado, void **encontrado)
 		return NULL;
 	*encontrado = nodo_encontrado->elemento;
 	if (nodo_encontrado->izq == NULL && nodo_encontrado->der != NULL) {
-		if (abb->comparador(anterior_encontrado, nodo_encontrado) < 0)
+		if (anterior_encontrado == NULL)
+			abb->raiz = nodo_encontrado->der;
+		else if (abb->comparador(anterior_encontrado->elemento,
+					 nodo_encontrado->elemento) < 0)
 			anterior_encontrado->der = nodo_encontrado->der;
 		else
 			anterior_encontrado->izq = nodo_encontrado->der;
 	} else if (nodo_encontrado->izq != NULL &&
 		   nodo_encontrado->der == NULL) {
-		if (abb->comparador(anterior_encontrado, nodo_encontrado) < 0)
-			anterior_encontrado->der = nodo_encontrado->der;
+		if (anterior_encontrado == NULL)
+			abb->raiz = nodo_encontrado->izq;
+		else if (abb->comparador(anterior_encontrado->elemento,
+					 nodo_encontrado->elemento) < 0)
+			anterior_encontrado->der = nodo_encontrado->izq;
 		else
-			anterior_encontrado->izq = nodo_encontrado->der;
-	} else {
+			anterior_encontrado->izq = nodo_encontrado->izq;
+
+	} else if (nodo_encontrado->izq != NULL &&
+		   nodo_encontrado->der != NULL) {
 		nodo_t *anterior_sucesor = NULL;
 		nodo_t *nodo_sucesor = interna_obtener_menor_y_anterior(
-			nodo_encontrado, &anterior_sucesor);
-		anterior_sucesor = nodo_sucesor->der;
+			nodo_encontrado->der, &anterior_sucesor);
+		if (anterior_encontrado == NULL)
+			abb->raiz = nodo_sucesor;
+		else if (abb->comparador(anterior_encontrado->elemento,
+					 nodo_sucesor->elemento) < 0)
+			anterior_encontrado->der = nodo_sucesor;
+		else
+			anterior_encontrado->izq = nodo_sucesor;
+		if (anterior_sucesor != NULL) {
+			anterior_sucesor->izq = nodo_sucesor->der;
+			nodo_sucesor->der = nodo_encontrado->der;
+		}
 		nodo_sucesor->izq = nodo_encontrado->izq;
-		nodo_sucesor->der = nodo_encontrado->der;
 	}
-	free(encontrado);
+	free(nodo_encontrado);
 	return true;
 }
 

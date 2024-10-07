@@ -33,19 +33,23 @@ size_t interna_inorden_recursivo(struct params_internas p)
 	if (!p.seguir_iterando)
 		return 0;
 	size_t invocaciones = 0;
+	struct params_internas siguiente = { .nodo = NULL,
+					     .f = p.f,
+					     .seguir_iterando =
+						     p.seguir_iterando,
+					     .ctx = p.ctx };
 
 	if (p.nodo->izq != NULL) {
-		p.nodo = p.nodo->izq;
-		invocaciones += interna_inorden_recursivo(p);
+		siguiente.nodo = p.nodo->izq;
+		invocaciones += interna_inorden_recursivo(siguiente);
 	}
 	p.seguir_iterando = p.f(p.nodo->elemento, p.ctx);
 
 	if (p.seguir_iterando) {
 		if (p.nodo->der != NULL) {
-			p.nodo = p.nodo->der;
-			invocaciones += interna_inorden_recursivo(p);
-		} else
-			return 1;
+			siguiente.nodo = p.nodo->der;
+			invocaciones += interna_inorden_recursivo(siguiente);
+		}
 	}
 
 	return invocaciones;
@@ -53,24 +57,49 @@ size_t interna_inorden_recursivo(struct params_internas p)
 
 size_t interna_preorden_recursivo(struct params_internas p)
 {
-	return 0;
+	p.seguir_iterando = p.f(p.nodo->elemento, p.ctx);
+	size_t invocaciones = 1;
+	if (!p.seguir_iterando)
+		return invocaciones;
+	struct params_internas siguiente = { .nodo = NULL,
+					     .f = p.f,
+					     .seguir_iterando =
+						     p.seguir_iterando,
+					     .ctx = p.ctx };
+
+	if (p.nodo->izq != NULL) {
+		siguiente.nodo = p.nodo->izq;
+		invocaciones += interna_preorden_recursivo(siguiente);
+	}
+
+	if (p.nodo->der != NULL) {
+		siguiente.nodo = p.nodo->der;
+		invocaciones += interna_preorden_recursivo(siguiente);
+	}
+
+	return invocaciones;
 }
 
 size_t interna_postorden_recursivo(struct params_internas p)
 {
 	if (!p.seguir_iterando)
 		return 0;
+	struct params_internas siguiente = { .nodo = NULL,
+					     .f = p.f,
+					     .seguir_iterando =
+						     p.seguir_iterando,
+					     .ctx = p.ctx };
 
 	size_t invocaciones = 0;
 
 	if (p.nodo->izq != NULL) {
-		p.nodo = p.nodo->izq;
-		invocaciones += interna_postorden_recursivo(p);
+		siguiente.nodo = p.nodo->izq;
+		invocaciones += interna_postorden_recursivo(siguiente);
 	}
 
 	if (p.nodo->der != NULL) {
-		p.nodo = p.nodo->der;
-		invocaciones += interna_postorden_recursivo(p);
+		siguiente.nodo = p.nodo->der;
+		invocaciones += interna_postorden_recursivo(siguiente);
 	}
 	p.seguir_iterando = p.f(p.nodo->elemento, p.ctx);
 	invocaciones++;

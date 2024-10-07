@@ -10,6 +10,7 @@
 #define AMARILLO "\x1b[33;1m"
 #define NORMAL "\x1b[0m"
 #define CYAN "\033[0;36m"
+#define AZUL "\033[34m"
 
 #define TILDE "✓"
 #define CRUZ "✗"

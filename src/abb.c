@@ -100,6 +100,14 @@ bool abb_quitar(abb_t *abb, void *buscado, void **encontrado)
 			nodo_sucesor->der = nodo_encontrado->der;
 		}
 		nodo_sucesor->izq = nodo_encontrado->izq;
+	} else {
+		if (anterior_encontrado == NULL)
+			abb->raiz = NULL;
+		else if (abb->comparador(anterior_encontrado->elemento,
+					 nodo_encontrado->elemento) < 0)
+			anterior_encontrado->der = NULL;
+		else
+			anterior_encontrado->izq = NULL;
 	}
 	free(nodo_encontrado);
 	return true;

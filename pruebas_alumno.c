@@ -67,6 +67,26 @@ void prueba_iterar()
 	abb_iterar_inorden(arbol, funcion_iterador, &ctx);
 	abb_destruir(arbol);
 }
+void prueba_mezcla_quitar_iterar()
+{
+	printf(CYAN "QUITAR E ITERAR \n");
+	abb_t *arbol = abb_crear(comparador_int);
+	int diez_valores[10] = { 81, 33, 46, 9, 44, 49, 39, 63, 15, 63 };
+	for (int i = 0; i < 10; i++) {
+		abb_insertar(arbol, &diez_valores[i]);
+	}
+	int quitar_cinco_elem[5] = { 46, 15, 81, 63, 39 };
+	void *elem_quitado = NULL;
+	for (int i = 0; i < 5; i++) {
+		abb_quitar(arbol, &quitar_cinco_elem[i], &elem_quitado);
+	}
+	printf(NORMAL "(Se pusieron 10 elementos y se quitaron 5) \n");
+	int cinco_inorden_esperados[5] = { 9, 33, 44, 49, 63 };
+	struct ctx_iterador ctx = { .vector = cinco_inorden_esperados,
+				    .pos = 0 };
+	abb_iterar_inorden(arbol, funcion_iterador, &ctx);
+	abb_destruir(arbol);
+}
 /*
  * Aañade 10 elementos: 81 33 46 9 44 49 39 63 15 63
  * se espera: img/pruebas_esperado.jpg (iguales como hijos izquierdos)
@@ -118,7 +138,7 @@ void prueba_abb_integral()
 	int cinco_postorden_esperados[5] = { 9, 44, 63, 49, 33 };
 	void *cinco_obtenidos[5];
 
-	printf(NORMAL "INORDEN: \n");
+	printf(AZUL "INORDEN: \n");
 	abb_vectorizar_inorden(arbol, cinco_obtenidos, 5);
 	for (int i = 0; i < 5; i++)
 		pa2m_afirmar(cinco_inorden_esperados[i] ==
@@ -126,7 +146,7 @@ void prueba_abb_integral()
 			     "Esperado %d <-> Obtenido %d",
 			     cinco_inorden_esperados[i],
 			     *(int *)cinco_obtenidos[i]);
-	printf(NORMAL "PREORDEN: \n");
+	printf(AZUL "PREORDEN: \n");
 	abb_vectorizar_preorden(arbol, cinco_obtenidos, 5);
 	for (int i = 0; i < 5; i++)
 		pa2m_afirmar(cinco_preorden_esperados[i] ==
@@ -134,7 +154,7 @@ void prueba_abb_integral()
 			     "Esperado %d <-> Obtenido %d",
 			     cinco_preorden_esperados[i],
 			     *(int *)cinco_obtenidos[i]);
-	printf(NORMAL "POSTORDEN: \n");
+	printf(AZUL "POSTORDEN: \n");
 	abb_vectorizar_postorden(arbol, cinco_obtenidos, 5);
 	for (int i = 0; i < 5; i++)
 		pa2m_afirmar(cinco_postorden_esperados[i] ==
@@ -145,30 +165,34 @@ void prueba_abb_integral()
 
 	int tres_elem_insercion[3] = { 67, 23, 6 };
 
-	for (int i = 0; i < 3; i++)
+	printf(NORMAL "----- \n");
+	for (int i = 0; i < 3; i++) {
 		abb_insertar(arbol, &tres_elem_insercion[i]);
+		printf(AZUL "Insertamos %d \n", tres_elem_insercion[i]);
+	}
+	printf(NORMAL "----- \n");
 
 	int ocho_inorden_esperados[8] = { 6, 9, 23, 33, 44, 49, 63, 67 };
 	int ocho_preorden_esperados[8] = { 33, 9, 6, 23, 49, 44, 63, 67 };
 	int ocho_postorden_esperados[8] = { 6, 23, 9, 44, 67, 63, 49, 33 };
 	void *ocho_obtenidos[8];
 
-	printf(NORMAL "INORDEN: \n");
-	abb_vectorizar_inorden(arbol, ocho_obtenidos, 5);
+	printf(AZUL "INORDEN: \n");
+	abb_vectorizar_inorden(arbol, ocho_obtenidos, 8);
 	for (int i = 0; i < 8; i++)
 		pa2m_afirmar(
 			ocho_inorden_esperados[i] == *(int *)ocho_obtenidos[i],
 			"Esperado %d <-> Obtenido %d",
 			ocho_inorden_esperados[i], *(int *)ocho_obtenidos[i]);
-	printf(NORMAL "PREORDEN: \n");
-	abb_vectorizar_preorden(arbol, ocho_obtenidos, 5);
+	printf(AZUL "PREORDEN: \n");
+	abb_vectorizar_preorden(arbol, ocho_obtenidos, 8);
 	for (int i = 0; i < 8; i++)
 		pa2m_afirmar(
 			ocho_preorden_esperados[i] == *(int *)ocho_obtenidos[i],
 			"Esperado %d <-> Obtenido %d",
 			ocho_preorden_esperados[i], *(int *)ocho_obtenidos[i]);
-	printf(NORMAL "POSTORDEN: \n");
-	abb_vectorizar_postorden(arbol, ocho_obtenidos, 5);
+	printf(AZUL "POSTORDEN: \n");
+	abb_vectorizar_postorden(arbol, ocho_obtenidos, 8);
 	for (int i = 0; i < 8; i++)
 		pa2m_afirmar(ocho_postorden_esperados[i] ==
 				     *(int *)ocho_obtenidos[i],
@@ -186,6 +210,7 @@ int main()
 	prueba_agregar_cosas();
 	prueba_obtener_nodo();
 	prueba_iterar();
+	prueba_mezcla_quitar_iterar();
 	prueba_abb_integral();
 
 	return pa2m_mostrar_reporte();

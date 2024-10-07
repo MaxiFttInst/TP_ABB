@@ -1,10 +1,24 @@
 #include "pa2m.h"
 #include "src/abb.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 int comparador_int(void *a, void *b)
 {
 	return *(int *)a - *(int *)b;
+}
+struct ctx_iterador {
+	int *vector;
+	size_t pos;
+};
+bool funcion_iterador(void *_elemento, void *_ctx)
+{
+	struct ctx_iterador *ctx = _ctx;
+	pa2m_afirmar(ctx->vector[ctx->pos] == *(int *)_elemento,
+		     "Esperado %d <-> Obtenido %d", ctx->vector[ctx->pos],
+		     *(int *)_elemento);
+	ctx->pos++;
+	return true;
 }
 void prueba_creacion_destruccion()
 {
@@ -38,6 +52,19 @@ void prueba_obtener_nodo()
 
 	void *obtenido = abb_obtener(arbol, &valores[1]);
 	pa2m_afirmar(*(int *)obtenido == valores[1], "Encontramos al elemento");
+	abb_destruir(arbol);
+}
+void prueba_iterar()
+{
+	printf(CYAN "OBTENER NODO \n");
+	abb_t *arbol = abb_crear(comparador_int);
+	int valores[3] = { 81, 33, 46 };
+	for (int i = 0; i < 3; i++) {
+		abb_insertar(arbol, &valores[i]);
+	}
+	int esperado[3] = { 33, 46, 81 };
+	struct ctx_iterador ctx = { .vector = esperado, .pos = 0 };
+	abb_iterar_inorden(arbol, funcion_iterador, &ctx);
 	abb_destruir(arbol);
 }
 /*
@@ -155,9 +182,10 @@ void prueba_abb_integral()
 int main()
 {
 	pa2m_nuevo_grupo("============== PRUEBAS DE ARBOL ===============");
-	// prueba_creacion_destruccion();
-	// prueba_agregar_cosas();
-	// prueba_obtener_nodo();
+	prueba_creacion_destruccion();
+	prueba_agregar_cosas();
+	prueba_obtener_nodo();
+	prueba_iterar();
 	prueba_abb_integral();
 
 	return pa2m_mostrar_reporte();

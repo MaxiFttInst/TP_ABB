@@ -14,7 +14,7 @@ valgrind-tp_abb: clean formatear tp_abb
 	valgrind $(VALGRIND_FLAGS) ./tp_abb "ejemplos/pokedex.csv"
 
 tp_abb: src/*.c tp_abb.c
-	$(CC) $(CFLAGS) src/*.c ejemplo.c -o ejemplo
+	$(CC) $(CFLAGS) src/*.c tp_abb.c -o tp_abb
 
 formatear:
 	clang-format --style=file -i *.c src/*.c src/*.h

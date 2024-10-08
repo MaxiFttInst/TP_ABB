@@ -43,7 +43,11 @@ bool abb_insertar(abb_t *abb, void *elemento)
 {
 	if (abb == NULL)
 		return false;
-	return interna_insertar(&(abb->raiz), abb->comparador, elemento);
+	bool resultado = false;
+	resultado = interna_insertar(&(abb->raiz), abb->comparador, elemento);
+	if (resultado)
+		abb->nodos++;
+	return resultado;
 }
 
 /**
@@ -52,6 +56,71 @@ bool abb_insertar(abb_t *abb, void *elemento)
  *
  * Devuelve true si pudo quitar el elemento.
  */
+void ajustar_punteros_hijo_der(abb_t *abb, nodo_t *nodo_encontrado,
+			       nodo_t *anterior_encontrado)
+{
+	if (anterior_encontrado == NULL)
+		abb->raiz = nodo_encontrado->der;
+	else if (abb->comparador(anterior_encontrado->elemento,
+				 nodo_encontrado->elemento) < 0)
+		anterior_encontrado->der = nodo_encontrado->der;
+	else
+		anterior_encontrado->izq = nodo_encontrado->der;
+}
+void ajustar_punteros_hijo_izq(abb_t *abb, nodo_t *nodo_encontrado,
+			       nodo_t *anterior_encontrado)
+{
+	if (anterior_encontrado == NULL)
+		abb->raiz = nodo_encontrado->izq;
+	else if (abb->comparador(anterior_encontrado->elemento,
+				 nodo_encontrado->elemento) < 0)
+		anterior_encontrado->der = nodo_encontrado->izq;
+	else
+		anterior_encontrado->izq = nodo_encontrado->izq;
+}
+void ajustar_punteros_dos_hijos(abb_t *abb, nodo_t *nodo_encontrado,
+				nodo_t *anterior_encontrado)
+{
+	nodo_t *anterior_sucesor = NULL;
+	nodo_t *nodo_sucesor = interna_obtener_menor_y_anterior(
+		nodo_encontrado->der, &anterior_sucesor);
+	if (anterior_encontrado == NULL)
+		abb->raiz = nodo_sucesor;
+	else if (abb->comparador(anterior_encontrado->elemento,
+				 nodo_sucesor->elemento) < 0)
+		anterior_encontrado->der = nodo_sucesor;
+	else
+		anterior_encontrado->izq = nodo_sucesor;
+	if (anterior_sucesor != NULL) {
+		anterior_sucesor->izq = nodo_sucesor->der;
+		nodo_sucesor->der = nodo_encontrado->der;
+	}
+	nodo_sucesor->izq = nodo_encontrado->izq;
+}
+void ajustar_punteros_sin_hijos(abb_t *abb, nodo_t *nodo_encontrado,
+				nodo_t *anterior_encontrado)
+{
+	if (anterior_encontrado == NULL)
+		abb->raiz = NULL;
+	else if (abb->comparador(anterior_encontrado->elemento,
+				 nodo_encontrado->elemento) < 0)
+		anterior_encontrado->der = NULL;
+	else
+		anterior_encontrado->izq = NULL;
+}
+bool solo_hijo_der(nodo_t *nodo)
+{
+	return nodo->izq == NULL && nodo->der != NULL;
+}
+bool solo_hijo_izq(nodo_t *nodo)
+{
+	return nodo->izq != NULL && nodo->der == NULL;
+}
+bool tiene_dos_hijos(nodo_t *nodo)
+{
+	return nodo->izq != NULL && nodo->der != NULL;
+}
+
 bool abb_quitar(abb_t *abb, void *buscado, void **encontrado)
 {
 	if (abb == NULL)
@@ -65,51 +134,21 @@ bool abb_quitar(abb_t *abb, void *buscado, void **encontrado)
 	if (nodo_encontrado == NULL)
 		return NULL;
 	*encontrado = nodo_encontrado->elemento;
-	if (nodo_encontrado->izq == NULL && nodo_encontrado->der != NULL) {
-		if (anterior_encontrado == NULL)
-			abb->raiz = nodo_encontrado->der;
-		else if (abb->comparador(anterior_encontrado->elemento,
-					 nodo_encontrado->elemento) < 0)
-			anterior_encontrado->der = nodo_encontrado->der;
-		else
-			anterior_encontrado->izq = nodo_encontrado->der;
-	} else if (nodo_encontrado->izq != NULL &&
-		   nodo_encontrado->der == NULL) {
-		if (anterior_encontrado == NULL)
-			abb->raiz = nodo_encontrado->izq;
-		else if (abb->comparador(anterior_encontrado->elemento,
-					 nodo_encontrado->elemento) < 0)
-			anterior_encontrado->der = nodo_encontrado->izq;
-		else
-			anterior_encontrado->izq = nodo_encontrado->izq;
-
-	} else if (nodo_encontrado->izq != NULL &&
-		   nodo_encontrado->der != NULL) {
-		nodo_t *anterior_sucesor = NULL;
-		nodo_t *nodo_sucesor = interna_obtener_menor_y_anterior(
-			nodo_encontrado->der, &anterior_sucesor);
-		if (anterior_encontrado == NULL)
-			abb->raiz = nodo_sucesor;
-		else if (abb->comparador(anterior_encontrado->elemento,
-					 nodo_sucesor->elemento) < 0)
-			anterior_encontrado->der = nodo_sucesor;
-		else
-			anterior_encontrado->izq = nodo_sucesor;
-		if (anterior_sucesor != NULL) {
-			anterior_sucesor->izq = nodo_sucesor->der;
-			nodo_sucesor->der = nodo_encontrado->der;
-		}
-		nodo_sucesor->izq = nodo_encontrado->izq;
+	if (solo_hijo_der(nodo_encontrado)) {
+		ajustar_punteros_hijo_der(abb, nodo_encontrado,
+					  anterior_encontrado);
+	} else if (solo_hijo_izq(nodo_encontrado)) {
+		ajustar_punteros_hijo_izq(abb, nodo_encontrado,
+					  anterior_encontrado);
+	} else if (tiene_dos_hijos(nodo_encontrado)) {
+		ajustar_punteros_dos_hijos(abb, nodo_encontrado,
+					   anterior_encontrado);
 	} else {
-		if (anterior_encontrado == NULL)
-			abb->raiz = NULL;
-		else if (abb->comparador(anterior_encontrado->elemento,
-					 nodo_encontrado->elemento) < 0)
-			anterior_encontrado->der = NULL;
-		else
-			anterior_encontrado->izq = NULL;
+		ajustar_punteros_sin_hijos(abb, nodo_encontrado,
+					   anterior_encontrado);
 	}
 	free(nodo_encontrado);
+	abb->nodos--;
 	return true;
 }
 

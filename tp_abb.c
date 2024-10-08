@@ -40,12 +40,12 @@ bool buscar_en_iter(void *_pokemon, void *_ctx)
 {
 	struct pokemon *pokemon = _pokemon;
 	struct buscar_ctx *ctx = _ctx;
-	bool resultado = false;
+	bool seguir_iterando = true;
 	if (strcmp(pokemon->nombre, ctx->nombre) == 0) {
 		*(ctx->encontrado) = pokemon;
-		resultado = true;
+		seguir_iterando = false;
 	}
-	return resultado;
+	return seguir_iterando;
 }
 
 bool leer_int(const char *str, void *ctx)

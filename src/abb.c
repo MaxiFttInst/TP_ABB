@@ -81,21 +81,21 @@ void ajustar_punteros_hijo_izq(abb_t *abb, nodo_t *nodo_encontrado,
 void ajustar_punteros_dos_hijos(abb_t *abb, nodo_t *nodo_encontrado,
 				nodo_t *anterior_encontrado)
 {
-	nodo_t *anterior_sucesor = NULL;
-	nodo_t *nodo_sucesor = interna_obtener_menor_y_anterior(
-		nodo_encontrado->der, &anterior_sucesor);
+	nodo_t *anterior_predecesor = NULL;
+	nodo_t *nodo_predecesor = interna_obtener_mayor_y_anterior(
+		nodo_encontrado->izq, &anterior_predecesor);
 	if (anterior_encontrado == NULL)
-		abb->raiz = nodo_sucesor;
+		abb->raiz = nodo_predecesor;
 	else if (abb->comparador(anterior_encontrado->elemento,
-				 nodo_sucesor->elemento) < 0)
-		anterior_encontrado->der = nodo_sucesor;
+				 nodo_predecesor->elemento) < 0)
+		anterior_encontrado->der = nodo_predecesor;
 	else
-		anterior_encontrado->izq = nodo_sucesor;
-	if (anterior_sucesor != NULL) {
-		anterior_sucesor->izq = nodo_sucesor->der;
-		nodo_sucesor->der = nodo_encontrado->der;
+		anterior_encontrado->izq = nodo_predecesor;
+	if (anterior_predecesor != NULL) {
+		anterior_predecesor->der = nodo_predecesor->izq;
+		nodo_predecesor->izq = nodo_encontrado->izq;
 	}
-	nodo_sucesor->izq = nodo_encontrado->izq;
+	nodo_predecesor->der = nodo_encontrado->der;
 }
 void ajustar_punteros_sin_hijos(abb_t *abb, nodo_t *nodo_encontrado,
 				nodo_t *anterior_encontrado)

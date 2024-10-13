@@ -21,6 +21,6 @@ size_t interna_postorden_recursivo(struct params_internas);
 
 nodo_t *interna_obtener_nodo(nodo_t *, void *, int (*)(void *, void *),
 			     nodo_t **);
-nodo_t *interna_obtener_menor_y_anterior(nodo_t *nodo, nodo_t **anterior);
+nodo_t *interna_obtener_mayor_y_anterior(nodo_t *nodo, nodo_t **anterior);
 void interna_destruir_todo(nodo_t *nodo, void (*destructor)(void *));
 #endif // ABB_H_

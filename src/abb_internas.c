@@ -52,7 +52,7 @@ size_t interna_inorden_recursivo(struct params_internas p)
 		}
 	}
 
-	return invocaciones;
+	return invocaciones++;
 }
 
 size_t interna_preorden_recursivo(struct params_internas p)
@@ -124,16 +124,16 @@ nodo_t *interna_obtener_nodo(nodo_t *nodo, void *elemento,
 	}
 	return NULL;
 }
-nodo_t *interna_obtener_menor_y_anterior(nodo_t *nodo, nodo_t **anterior)
+nodo_t *interna_obtener_mayor_y_anterior(nodo_t *nodo, nodo_t **anterior)
 {
-	if (nodo->izq == NULL)
+	if (nodo->der == NULL)
 		return nodo;
-	if (nodo->izq->izq != NULL) {
-		nodo = nodo->izq;
-		interna_obtener_menor_y_anterior(nodo->izq, anterior);
+	if (nodo->der->der != NULL) {
+		nodo = nodo->der;
+		interna_obtener_mayor_y_anterior(nodo->der, anterior);
 	}
 	*anterior = nodo;
-	return nodo->izq;
+	return nodo->der;
 }
 void interna_destruir_todo(nodo_t *nodo, void (*destructor)(void *))
 {

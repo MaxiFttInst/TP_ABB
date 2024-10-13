@@ -63,6 +63,9 @@ void prueba_obtener_nodo()
 
 	void *obtenido = abb_obtener(arbol, &valores[1]);
 	pa2m_afirmar(*(int *)obtenido == valores[1], "Encontramos al elemento");
+	int inexistente = 2342;
+	pa2m_afirmar(abb_obtener(arbol, &inexistente) == NULL,
+		     "Buscar elemento inexistente devuelve NULL");
 	abb_destruir(arbol);
 }
 void prueba_iterar()

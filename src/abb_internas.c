@@ -4,9 +4,11 @@
 nodo_t *crear_nodo(void *elemento)
 {
 	nodo_t *nuevo_nodo = calloc(1, sizeof(nodo_t));
-	nuevo_nodo->elemento = elemento;
-	nuevo_nodo->izq = NULL;
-	nuevo_nodo->der = NULL;
+	if (nuevo_nodo != NULL) {
+		nuevo_nodo->elemento = elemento;
+		nuevo_nodo->izq = NULL;
+		nuevo_nodo->der = NULL;
+	}
 	return nuevo_nodo;
 }
 

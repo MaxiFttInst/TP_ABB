@@ -160,9 +160,12 @@ void *abb_obtener(abb_t *abb, void *elemento)
 {
 	if (abb == NULL)
 		return false;
-	nodo_t *algo = NULL;
-	return interna_obtener_nodo(abb->raiz, elemento, abb->comparador, &algo)
-		->elemento;
+	nodo_t *anterior = NULL;
+	nodo_t *encontrado = interna_obtener_nodo(abb->raiz, elemento,
+						  abb->comparador, &anterior);
+	if (encontrado == NULL)
+		return NULL;
+	return encontrado->elemento;
 }
 
 /**

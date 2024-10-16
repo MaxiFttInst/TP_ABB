@@ -52,6 +52,21 @@ void prueba_agregar_cosas()
 	}
 	abb_destruir(arbol);
 }
+void prueba_quitar_siempre_raiz()
+{
+	printf(CYAN "QUITAR SIEMPRE RAIZ\n");
+
+	abb_t *arbol = abb_crear(comparador_int);
+	int valores[6] = { 81, 33, 46, 146, 133, 134 };
+	for (int i = 0; i < 6; i++) {
+		abb_insertar(arbol, &valores[i]);
+	}
+	void *elem_quitado = NULL;
+	abb_quitar(arbol, &valores[0], &elem_quitado);
+	pa2m_afirmar(elem_quitado == &valores[0], "El elemento quitado es el esperado");
+	//hacer una iteracion para verificar la correcta posicion
+	abb_destruir(arbol);
+}
 void prueba_obtener_nodo()
 {
 	printf(CYAN "OBTENER NODO \n");
@@ -76,20 +91,28 @@ void prueba_iterar()
 	for (int i = 0; i < 3; i++) {
 		abb_insertar(arbol, &valores[i]);
 	}
+	size_t elem_iterados = 0;
 	int esperado[3] = { 33, 46, 81 };
 	struct ctx_iterador ctx = { .vector = esperado, .pos = 0 };
 	printf(AZUL "INORDEN \n");
-	abb_iterar_inorden(arbol, funcion_iterador, &ctx);
+	elem_iterados = abb_iterar_inorden(arbol, funcion_iterador, &ctx);
+	pa2m_afirmar(elem_iterados == 3,
+		     "Se iteraron 3 elementos, resultado: %d", elem_iterados);
 
 	int esperado_post[3] = { 46, 33, 81 };
 	struct ctx_iterador ctx_post = { .vector = esperado_post, .pos = 0 };
 	printf(AZUL "POSTORDEN \n");
-	abb_iterar_postorden(arbol, funcion_iterador, &ctx_post);
+	elem_iterados =
+		abb_iterar_postorden(arbol, funcion_iterador, &ctx_post);
+	pa2m_afirmar(elem_iterados == 3,
+		     "Se iteraron 3 elementos, resultado: %d", elem_iterados);
 
 	int esperado_pre[3] = { 81, 33, 46 };
 	struct ctx_iterador ctx_pre = { .vector = esperado_pre, .pos = 0 };
 	printf(AZUL "PREORDEN \n");
-	abb_iterar_preorden(arbol, funcion_iterador, &ctx_pre);
+	elem_iterados = abb_iterar_preorden(arbol, funcion_iterador, &ctx_pre);
+	pa2m_afirmar(elem_iterados == 3,
+		     "Se iteraron 3 elementos, resultado: %d", elem_iterados);
 	abb_destruir(arbol);
 }
 void prueba_iterar_c_detencion()
@@ -101,11 +124,26 @@ void prueba_iterar_c_detencion()
 	for (int i = 0; i < cant_nums; i++) {
 		abb_insertar(arbol, &valores[i]);
 	}
-	int esperado[5] = { 3, 11, 33, 43, 45 };
-	struct ctx_iterador ctx = { .vector = esperado, .pos = 0 };
+	int esperado_inorden[5] = { 3, 11, 33, 43, 45 };
+	struct ctx_iterador ctx = { .vector = esperado_inorden, .pos = 0 };
 	size_t elem_iterados = 0;
 	elem_iterados =
 		abb_iterar_inorden(arbol, funcion_iterador_c_detencion, &ctx);
+	pa2m_afirmar(elem_iterados == 5,
+		     "Se iteraron 5 elementos, resultado: %d", elem_iterados);
+
+	int esperado_preorden[5] = { 81, 33, 11, 3, 46 };
+	struct ctx_iterador ctx_pre = { .vector = esperado_preorden, .pos = 0 };
+	elem_iterados = abb_iterar_preorden(arbol, funcion_iterador_c_detencion,
+					    &ctx_pre);
+	pa2m_afirmar(elem_iterados == 5,
+		     "Se iteraron 5 elementos, resultado: %d", elem_iterados);
+
+	int esperado_postorden[5] = { 3, 11, 45, 43, 46 };
+	struct ctx_iterador ctx_post = { .vector = esperado_postorden,
+					 .pos = 0 };
+	elem_iterados = abb_iterar_postorden(
+		arbol, funcion_iterador_c_detencion, &ctx_post);
 	pa2m_afirmar(elem_iterados == 5,
 		     "Se iteraron 5 elementos, resultado: %d", elem_iterados);
 	abb_destruir(arbol);
@@ -252,6 +290,7 @@ int main()
 	prueba_creacion_destruccion();
 	prueba_agregar_cosas();
 	prueba_obtener_nodo();
+	prueba_quitar_siempre_raiz();
 	prueba_iterar();
 	prueba_iterar_c_detencion();
 	prueba_mezcla_quitar_iterar();

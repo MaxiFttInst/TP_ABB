@@ -134,8 +134,9 @@ bool abb_quitar(abb_t *abb, void *buscado, void **encontrado)
 	nodo_encontrado = interna_obtener_nodo(
 		abb->raiz, buscado, abb->comparador, &anterior_encontrado);
 	if (nodo_encontrado == NULL)
-		return NULL;
-	*encontrado = nodo_encontrado->elemento;
+		return false;
+	if (encontrado)
+		*encontrado = nodo_encontrado->elemento;
 	if (solo_hijo_der(nodo_encontrado)) {
 		ajustar_punteros_hijo_der(abb, nodo_encontrado,
 					  anterior_encontrado);
@@ -194,33 +195,21 @@ size_t abb_iterar_inorden(abb_t *abb, bool (*f)(void *, void *), void *ctx)
 	if (abb == NULL || abb->raiz == NULL || f == NULL)
 		return 0;
 	bool seguir_iterando = true;
-	struct params_internas p = { .nodo = abb->raiz,
-				     .f = f,
-				     .ctx = ctx,
-				     .seguir_iterando = &seguir_iterando };
-	return interna_inorden_recursivo(p);
+	return interna_inorden_recursivo(abb->raiz, f, ctx, &seguir_iterando);
 }
 size_t abb_iterar_preorden(abb_t *abb, bool (*f)(void *, void *), void *ctx)
 {
 	if (abb == NULL || abb->raiz == NULL || f == NULL)
 		return 0;
 	bool seguir_iterando = true;
-	struct params_internas p = { .nodo = abb->raiz,
-				     .f = f,
-				     .ctx = ctx,
-				     .seguir_iterando = &seguir_iterando };
-	return interna_preorden_recursivo(p);
+	return interna_preorden_recursivo(abb->raiz, f, ctx, &seguir_iterando);
 }
 size_t abb_iterar_postorden(abb_t *abb, bool (*f)(void *, void *), void *ctx)
 {
 	if (abb == NULL || abb->raiz == NULL || f == NULL)
 		return 0;
 	bool seguir_iterando = true;
-	struct params_internas p = { .nodo = abb->raiz,
-				     .f = f,
-				     .ctx = ctx,
-				     .seguir_iterando = &seguir_iterando };
-	return interna_postorden_recursivo(p);
+	return interna_postorden_recursivo(abb->raiz, f, ctx, &seguir_iterando);
 }
 
 /**
@@ -252,7 +241,8 @@ size_t abb_vectorizar_inorden(abb_t *abb, void **vector, size_t tamaño)
 	struct ctx_vectorizacion ctx = { .vector = vector,
 					 .tamanio = tamaño,
 					 .posicion = 0 };
-	return abb_iterar_inorden(abb, vectorizadora_por_iteracion, &ctx);
+	abb_iterar_inorden(abb, vectorizadora_por_iteracion, &ctx);
+	return ctx.posicion;
 }
 size_t abb_vectorizar_preorden(abb_t *abb, void **vector, size_t tamaño)
 {
@@ -261,7 +251,8 @@ size_t abb_vectorizar_preorden(abb_t *abb, void **vector, size_t tamaño)
 	struct ctx_vectorizacion ctx = { .vector = vector,
 					 .tamanio = tamaño,
 					 .posicion = 0 };
-	return abb_iterar_preorden(abb, vectorizadora_por_iteracion, &ctx);
+	abb_iterar_preorden(abb, vectorizadora_por_iteracion, &ctx);
+	return ctx.posicion;
 }
 size_t abb_vectorizar_postorden(abb_t *abb, void **vector, size_t tamaño)
 {
@@ -270,5 +261,6 @@ size_t abb_vectorizar_postorden(abb_t *abb, void **vector, size_t tamaño)
 	struct ctx_vectorizacion ctx = { .vector = vector,
 					 .tamanio = tamaño,
 					 .posicion = 0 };
-	return abb_iterar_postorden(abb, vectorizadora_por_iteracion, &ctx);
+	abb_iterar_postorden(abb, vectorizadora_por_iteracion, &ctx);
+	return ctx.posicion;
 }

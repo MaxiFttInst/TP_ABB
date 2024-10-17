@@ -3,21 +3,16 @@
 #include "abb_estructura_privada.h"
 #include <stdbool.h>
 
-struct params_internas {
-	nodo_t *nodo;
-	bool (*f)(void *, void *);
-	void *ctx;
-	bool *seguir_iterando;
-};
-
 bool interna_insertar(nodo_t **nodo, int (*comparador)(void *, void *),
 		      void *elemento);
 
-size_t interna_inorden_recursivo(struct params_internas);
+size_t interna_preorden_recursivo(nodo_t *nodo, bool (*f)(void *, void *),
+				  void *ctx, bool *seguir_iterando);
 
-size_t interna_preorden_recursivo(struct params_internas);
-
-size_t interna_postorden_recursivo(struct params_internas);
+size_t interna_inorden_recursivo(nodo_t *nodo, bool (*f)(void *, void *),
+				 void *ctx, bool *seguir_iterando);
+size_t interna_postorden_recursivo(nodo_t *nodo, bool (*f)(void *, void *),
+				   void *ctx, bool *seguir_iterando);
 
 nodo_t *interna_obtener_nodo(nodo_t *, void *, int (*)(void *, void *),
 			     nodo_t **);

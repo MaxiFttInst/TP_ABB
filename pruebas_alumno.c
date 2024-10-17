@@ -25,12 +25,12 @@ bool funcion_iterador_c_detencion(void *_elemento, void *_ctx)
 {
 	struct ctx_iterador *ctx = _ctx;
 	ctx->invocaciones++;
-	if (ctx->pos == 5)
-		return false;
 	pa2m_afirmar(ctx->vector[ctx->pos] == *(int *)_elemento,
 		     "Esperado %d <-> Obtenido %d", ctx->vector[ctx->pos],
 		     *(int *)_elemento);
 	ctx->pos++;
+	if (ctx->pos == 5)
+		return false;
 	return true;
 }
 void prueba_creacion_destruccion()
@@ -67,7 +67,6 @@ void prueba_quitar_siempre_raiz()
 	abb_quitar(arbol, &valores[0], &elem_quitado);
 	pa2m_afirmar(elem_quitado == &valores[0],
 		     "El elemento quitado es el esperado");
-	//hacer una iteracion para verificar la correcta posicion
 	abb_destruir(arbol);
 }
 void prueba_obtener_nodo()
@@ -84,6 +83,22 @@ void prueba_obtener_nodo()
 	int inexistente = 2342;
 	pa2m_afirmar(abb_obtener(arbol, &inexistente) == NULL,
 		     "Buscar elemento inexistente devuelve NULL");
+	abb_destruir(arbol);
+}
+void prueba_quitar_y_buscar()
+{
+	printf(CYAN "QUITAR Y BUSCAR\n");
+
+	abb_t *arbol = abb_crear(comparador_int);
+	int valores[6] = { 81, 33, 46, 146, 133, 134 };
+	for (int i = 0; i < 6; i++) {
+		abb_insertar(arbol, &valores[i]);
+	}
+	void *elem_quitado = NULL;
+	abb_quitar(arbol, &valores[3], &elem_quitado);
+	int *encontrado = abb_obtener(arbol, &valores[3]);
+	pa2m_afirmar(encontrado == NULL,
+		     "Buscar un elemento quitado devuelve NULL");
 	abb_destruir(arbol);
 }
 void prueba_iterar()
@@ -127,6 +142,7 @@ void prueba_iterar_c_detencion()
 	for (int i = 0; i < cant_nums; i++) {
 		abb_insertar(arbol, &valores[i]);
 	}
+	printf(AZUL "INORDEN \n");
 	int esperado_inorden[5] = { 3, 11, 33, 43, 45 };
 	struct ctx_iterador ctx = { .vector = esperado_inorden,
 				    .pos = 0,
@@ -140,6 +156,7 @@ void prueba_iterar_c_detencion()
 		     "Las invocaciones internas son 5, resultado: %d",
 		     ctx.invocaciones);
 
+	printf(AZUL "PREORDEN \n");
 	int esperado_preorden[5] = { 81, 33, 11, 3, 46 };
 	struct ctx_iterador ctx_pre = { .vector = esperado_preorden,
 					.pos = 0,
@@ -152,6 +169,7 @@ void prueba_iterar_c_detencion()
 		     "Las invocaciones internas son 5, resultado: %d",
 		     ctx_pre.invocaciones);
 
+	printf(AZUL "POSTORDEN \n");
 	int esperado_postorden[5] = { 3, 11, 45, 43, 46 };
 	struct ctx_iterador ctx_post = { .vector = esperado_postorden,
 					 .pos = 0,
@@ -308,6 +326,7 @@ int main()
 	prueba_agregar_cosas();
 	prueba_obtener_nodo();
 	prueba_quitar_siempre_raiz();
+	prueba_quitar_y_buscar();
 	prueba_iterar();
 	prueba_iterar_c_detencion();
 	prueba_mezcla_quitar_iterar();

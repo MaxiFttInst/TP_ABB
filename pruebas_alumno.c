@@ -10,6 +10,7 @@ int comparador_int(void *a, void *b)
 struct ctx_iterador {
 	int *vector;
 	size_t pos;
+	size_t invocaciones;
 };
 bool funcion_iterador(void *_elemento, void *_ctx)
 {
@@ -23,6 +24,7 @@ bool funcion_iterador(void *_elemento, void *_ctx)
 bool funcion_iterador_c_detencion(void *_elemento, void *_ctx)
 {
 	struct ctx_iterador *ctx = _ctx;
+	ctx->invocaciones++;
 	if (ctx->pos == 5)
 		return false;
 	pa2m_afirmar(ctx->vector[ctx->pos] == *(int *)_elemento,
@@ -63,7 +65,8 @@ void prueba_quitar_siempre_raiz()
 	}
 	void *elem_quitado = NULL;
 	abb_quitar(arbol, &valores[0], &elem_quitado);
-	pa2m_afirmar(elem_quitado == &valores[0], "El elemento quitado es el esperado");
+	pa2m_afirmar(elem_quitado == &valores[0],
+		     "El elemento quitado es el esperado");
 	//hacer una iteracion para verificar la correcta posicion
 	abb_destruir(arbol);
 }
@@ -125,27 +128,41 @@ void prueba_iterar_c_detencion()
 		abb_insertar(arbol, &valores[i]);
 	}
 	int esperado_inorden[5] = { 3, 11, 33, 43, 45 };
-	struct ctx_iterador ctx = { .vector = esperado_inorden, .pos = 0 };
+	struct ctx_iterador ctx = { .vector = esperado_inorden,
+				    .pos = 0,
+				    .invocaciones = 0 };
 	size_t elem_iterados = 0;
 	elem_iterados =
 		abb_iterar_inorden(arbol, funcion_iterador_c_detencion, &ctx);
 	pa2m_afirmar(elem_iterados == 5,
 		     "Se iteraron 5 elementos, resultado: %d", elem_iterados);
+	pa2m_afirmar(ctx.invocaciones == 5,
+		     "Las invocaciones internas son 5, resultado: %d",
+		     ctx.invocaciones);
 
 	int esperado_preorden[5] = { 81, 33, 11, 3, 46 };
-	struct ctx_iterador ctx_pre = { .vector = esperado_preorden, .pos = 0 };
+	struct ctx_iterador ctx_pre = { .vector = esperado_preorden,
+					.pos = 0,
+					.invocaciones = 0 };
 	elem_iterados = abb_iterar_preorden(arbol, funcion_iterador_c_detencion,
 					    &ctx_pre);
 	pa2m_afirmar(elem_iterados == 5,
 		     "Se iteraron 5 elementos, resultado: %d", elem_iterados);
+	pa2m_afirmar(ctx_pre.invocaciones == 5,
+		     "Las invocaciones internas son 5, resultado: %d",
+		     ctx_pre.invocaciones);
 
 	int esperado_postorden[5] = { 3, 11, 45, 43, 46 };
 	struct ctx_iterador ctx_post = { .vector = esperado_postorden,
-					 .pos = 0 };
+					 .pos = 0,
+					 .invocaciones = 0 };
 	elem_iterados = abb_iterar_postorden(
 		arbol, funcion_iterador_c_detencion, &ctx_post);
 	pa2m_afirmar(elem_iterados == 5,
 		     "Se iteraron 5 elementos, resultado: %d", elem_iterados);
+	pa2m_afirmar(ctx_post.invocaciones == 5,
+		     "Las invocaciones internas son 5, resultado: %d",
+		     ctx_post.invocaciones);
 	abb_destruir(arbol);
 }
 void prueba_mezcla_quitar_iterar()

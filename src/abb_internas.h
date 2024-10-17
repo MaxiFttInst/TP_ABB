@@ -7,7 +7,7 @@ struct params_internas {
 	nodo_t *nodo;
 	bool (*f)(void *, void *);
 	void *ctx;
-	bool seguir_iterando;
+	bool *seguir_iterando;
 };
 
 bool interna_insertar(nodo_t **nodo, int (*comparador)(void *, void *),

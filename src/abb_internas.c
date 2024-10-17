@@ -32,8 +32,8 @@ bool interna_insertar(nodo_t **nodo, int (*comparador)(void *, void *),
 }
 size_t interna_inorden_recursivo(struct params_internas p)
 {
-	// if (!p.seguir_iterando)
-	// 	return 0;
+	if (!p.seguir_iterando)
+		return 0;
 	size_t invocaciones = 0;
 	struct params_internas siguiente = { .nodo = NULL,
 					     .f = p.f,
@@ -44,22 +44,19 @@ size_t interna_inorden_recursivo(struct params_internas p)
 	if (p.nodo->izq != NULL) {
 		siguiente.nodo = p.nodo->izq;
 		invocaciones += interna_inorden_recursivo(siguiente);
-		p.seguir_iterando = siguiente.seguir_iterando;
 	}
-	// if (!p.seguir_iterando)
-	// 	return invocaciones;
+	if (!*p.seguir_iterando)
+		return invocaciones;
 
-	p.seguir_iterando = p.f(p.nodo->elemento, p.ctx);
-	if (p.seguir_iterando)
-		invocaciones += 1;
+	*p.seguir_iterando = p.f(p.nodo->elemento, p.ctx);
+	invocaciones += 1;
 
-	// if (!p.seguir_iterando)
-	// 	return invocaciones;
+	if (!*p.seguir_iterando)
+		return invocaciones;
 
 	if (p.nodo->der != NULL) {
 		siguiente.nodo = p.nodo->der;
 		invocaciones += interna_inorden_recursivo(siguiente);
-		p.seguir_iterando = siguiente.seguir_iterando;
 	}
 
 	return invocaciones;
@@ -67,8 +64,8 @@ size_t interna_inorden_recursivo(struct params_internas p)
 
 size_t interna_preorden_recursivo(struct params_internas p)
 {
-	p.seguir_iterando = p.f(p.nodo->elemento, p.ctx);
-	if (!p.seguir_iterando)
+	*p.seguir_iterando = p.f(p.nodo->elemento, p.ctx);
+	if (!*p.seguir_iterando)
 		return 0;
 	size_t invocaciones = 1;
 	struct params_internas siguiente = { .nodo = NULL,
@@ -82,6 +79,9 @@ size_t interna_preorden_recursivo(struct params_internas p)
 		invocaciones += interna_preorden_recursivo(siguiente);
 	}
 
+	if (!*p.seguir_iterando)
+		return invocaciones;
+
 	if (p.nodo->der != NULL) {
 		siguiente.nodo = p.nodo->der;
 		invocaciones += interna_preorden_recursivo(siguiente);
@@ -92,7 +92,7 @@ size_t interna_preorden_recursivo(struct params_internas p)
 
 size_t interna_postorden_recursivo(struct params_internas p)
 {
-	if (!p.seguir_iterando)
+	if (!*p.seguir_iterando)
 		return 0;
 	struct params_internas siguiente = { .nodo = NULL,
 					     .f = p.f,
@@ -106,14 +106,17 @@ size_t interna_postorden_recursivo(struct params_internas p)
 		siguiente.nodo = p.nodo->izq;
 		invocaciones += interna_postorden_recursivo(siguiente);
 	}
+	if (!*p.seguir_iterando)
+		return invocaciones;
 
 	if (p.nodo->der != NULL) {
 		siguiente.nodo = p.nodo->der;
 		invocaciones += interna_postorden_recursivo(siguiente);
 	}
-	p.seguir_iterando = p.f(p.nodo->elemento, p.ctx);
-	if (p.seguir_iterando)
-		invocaciones++;
+	if (!*p.seguir_iterando)
+		return invocaciones;
+	*p.seguir_iterando = p.f(p.nodo->elemento, p.ctx);
+	invocaciones++;
 	return invocaciones;
 }
 
@@ -137,14 +140,11 @@ nodo_t *interna_obtener_nodo(nodo_t *nodo, void *elemento,
 }
 nodo_t *interna_obtener_mayor_y_anterior(nodo_t *nodo, nodo_t **anterior)
 {
-	if (nodo->der == NULL)
-		return nodo;
-	if (nodo->der->der != NULL) {
-		nodo = nodo->der;
-		interna_obtener_mayor_y_anterior(nodo->der, anterior);
+	if (nodo->der != NULL) {
+		*anterior = nodo;
+		return interna_obtener_mayor_y_anterior(nodo->der, anterior);
 	}
-	*anterior = nodo;
-	return nodo->der;
+	return nodo;
 }
 void interna_destruir_todo(nodo_t *nodo, void (*destructor)(void *))
 {

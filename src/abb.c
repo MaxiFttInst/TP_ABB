@@ -31,6 +31,8 @@ void abb_destruir(abb_t *abb)
  */
 void abb_destruir_todo(abb_t *abb, void (*destructor)(void *))
 {
+	if (abb == NULL)
+		return;
 	if (abb->raiz != NULL)
 		interna_destruir_todo(abb->raiz, destructor);
 	free(abb);
@@ -191,27 +193,33 @@ size_t abb_iterar_inorden(abb_t *abb, bool (*f)(void *, void *), void *ctx)
 {
 	if (abb == NULL || abb->raiz == NULL || f == NULL)
 		return 0;
-	struct params_internas p = {
-		.nodo = abb->raiz, .f = f, .ctx = ctx, .seguir_iterando = true
-	};
+	bool seguir_iterando = true;
+	struct params_internas p = { .nodo = abb->raiz,
+				     .f = f,
+				     .ctx = ctx,
+				     .seguir_iterando = &seguir_iterando };
 	return interna_inorden_recursivo(p);
 }
 size_t abb_iterar_preorden(abb_t *abb, bool (*f)(void *, void *), void *ctx)
 {
 	if (abb == NULL || abb->raiz == NULL || f == NULL)
 		return 0;
-	struct params_internas p = {
-		.nodo = abb->raiz, .f = f, .ctx = ctx, .seguir_iterando = true
-	};
+	bool seguir_iterando = true;
+	struct params_internas p = { .nodo = abb->raiz,
+				     .f = f,
+				     .ctx = ctx,
+				     .seguir_iterando = &seguir_iterando };
 	return interna_preorden_recursivo(p);
 }
 size_t abb_iterar_postorden(abb_t *abb, bool (*f)(void *, void *), void *ctx)
 {
 	if (abb == NULL || abb->raiz == NULL || f == NULL)
 		return 0;
-	struct params_internas p = {
-		.nodo = abb->raiz, .f = f, .ctx = ctx, .seguir_iterando = true
-	};
+	bool seguir_iterando = true;
+	struct params_internas p = { .nodo = abb->raiz,
+				     .f = f,
+				     .ctx = ctx,
+				     .seguir_iterando = &seguir_iterando };
 	return interna_postorden_recursivo(p);
 }
 
@@ -248,6 +256,8 @@ size_t abb_vectorizar_inorden(abb_t *abb, void **vector, size_t tamaño)
 }
 size_t abb_vectorizar_preorden(abb_t *abb, void **vector, size_t tamaño)
 {
+	if (vector == NULL)
+		return 0;
 	struct ctx_vectorizacion ctx = { .vector = vector,
 					 .tamanio = tamaño,
 					 .posicion = 0 };
@@ -255,6 +265,8 @@ size_t abb_vectorizar_preorden(abb_t *abb, void **vector, size_t tamaño)
 }
 size_t abb_vectorizar_postorden(abb_t *abb, void **vector, size_t tamaño)
 {
+	if (vector == NULL)
+		return 0;
 	struct ctx_vectorizacion ctx = { .vector = vector,
 					 .tamanio = tamaño,
 					 .posicion = 0 };

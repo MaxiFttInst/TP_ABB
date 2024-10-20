@@ -366,6 +366,11 @@ size_t abb_iterar_inorden(abb_t *abb, bool (*f)(void *, void *), void *ctx)
 Verifica si abb o su raíz son NULL, o si f es NULL. Si alguno lo es, retorna 0.
 Inicializa un booleano seguir_iterando en true y llama a
 interna_inorden_recursivo, que recorre el árbol y aplica la función f.
+
+<div align="center">
+<img width="50%" src="img/r_inorden.gif">
+</div>
+
 - Salida: Retorna la cantidad de veces que se invocó la función f.
 #### abb_iterar_preorden
 ```c
@@ -375,6 +380,11 @@ interna_inorden_recursivo, que recorre el árbol y aplica la función f.
 - Proceso:
 Realiza las mismas verificaciones que abb_iterar_inorden.
 Llama a interna_preorden_recursivo para recorrer el árbol en preorden y aplicar f.
+
+<div align="center">
+<img width="50%" src="img/r_preorden.gif">
+</div>
+
 - Salida: Retorna el número de invocaciones de f.
 #### abb_iterar_postorden
 ```c

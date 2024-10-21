@@ -42,7 +42,8 @@ de origen, es decir, el **nodo padre**. Y, ¿Cómo llamaríamos a los nodos sin 
 Como vemos en un árbol de la vida real, cuando éste deja de ramificarse, aparecen
 **hojas**, y las hojas ya no tienen ramas, ¿No? Bueno, para una estructura de árbol
 podríamos llamar a estos nodos **nodos hoja**. Pero también vemos que los
-nodos hijos, que a su vez tienen otros hijos, también califican como árboles, ¿Son árboles?
+nodos hijos, que a su vez tienen otros hijos, también califican como árboles
+según la definición, ¿Entonces son árboles?
 La respuesta es sí, también lo son, pero como están dentro de un árbol  más
 grande los llamamos **subárboles**. Con todos estos conceptos, veámos
 como sería la imágen final en un gráfico.
@@ -56,10 +57,11 @@ es el nodo raíz y, en su caso, el 33 es su hijo izquierdo. También notemos que
 el diagrama posee un N=9 y h=4. El N podemos deducir fácilmente que se trata de 
 la cantidad de elementos. El h es un poco más complicado, pero percatémosnos de que
 justo coincide con el camino más largo que podemos hacer (ver línea de color).
-El h (height) es la **altura** del árbol. Por último, nos falta otro concepto
+El h (height) es la **altura** del árbol, y la raíz
+tiene altura cero. Por último, nos falta otro concepto
 importante, los **niveles**, que, si vemos las líneas punteadas, nos daremos
 cuenta de que son la cantidad de "filas", donde cada "fila" tiene a los nodos
-que están a en la misma **altura**.
+que están en la misma **altura**.
 
 ### Tipos de árboles
 
@@ -75,7 +77,7 @@ Además de cumplir las propiedades de un árbol genérico, tiene una restricció
 sólo pueden haber **dos nodos hijo por cada nodo padre**. Esto es porque cuando lo
 recorremos se trata de una decisión con dos posibilidades (binaria), para este trabajo
 elegimos llamar a los nodos hijo **izquierda** y **derecha** (ya lo veremos), pero
-bien podría ser **sí**/**no** **abierto**/**cerrado**, etc., según lo que necesitemos.
+bien podría ser **sí**/**no**, **abierto**/**cerrado**, etc., según lo que necesitemos.
 
 #### Árbol binario de búsqueda
 Cumple todas las propiedades de un árbol, y además **tiene un criterio de búsqueda
@@ -98,9 +100,13 @@ menor, a la izquierda.
 Nuevamente, para los árboles genéricos y binarios, se tendrá que recorrer
 todo el árbol.
 No obstante, para el ABB, no es necesario, dado que si buscamos el 100 y la raíz es
-90, sabemos que el 100 (si es que existe) se encuentra en el subárbol de 90.
+90, sabemos que el 100 (si es que existe) se encuentra en el subárbol derecho de 90.
 #### Eliminación
-La eliminación de un nodo en un árbol binario de búsqueda (ABB) es un proceso
+Para árboles genéricos, el caso de quitar un nodo que tiene N hijos no cambia
+la operación, dado que simplemente pueden ser adoptados por el padre del nodo
+eliminado.
+No obstante, la eliminación de un nodo en un árbol binario de búsqueda (ABB) es
+un proceso
 que puede variar dependiendo de la cantidad de hijos que tenga el nodo a
 eliminar:
 
@@ -114,6 +120,9 @@ predecesor (el nodo más grande en el subárbol izquierdo) para reemplazar el
 nodo que se desea eliminar. Luego, se procede a eliminar el nodo deseado y se 
 coloca el predecesor/sucesor en su lugar. Esto es válido dado que los
 predecesores/sucesores nunca tienen dos hijos.
+
+Este mismo procedimiento puede utilizarse para árboles binarios.
+
 #### Recorridos 
 
 Los recorridos de un árbol binario permiten acceder a sus nodos en diferentes
@@ -156,7 +165,7 @@ En cuanto a los recorridos, en el árbol genérico no tenemos la restricción de
 por ende, no podemos hablar de recorridos (pre/in/post)orden.
 
 **Para el ABB cambia un poco**: tenemos un criterio de inserción y búsqueda. Recordemos: el criterio de
-búsqueda es el que determina nuestra complejidad (o, por lo menos, la complejidad base). Si buscamos
+búsqueda es el que determina nuestra complejidad. Si buscamos
 en un árbol con la misma cantidad de nodos tanto en los subárboles izquierdo y derecho (**árbol balanceado**)
 notaremos que cada vez que iteramos, vamos descartando la mitad de los elementos.
 Supongamos que tenemos 100: el número que buscamos es mayor a 50 (nuestra raíz); vamos a la derecha y
@@ -238,11 +247,21 @@ que almacena la **raíz**, con esto nos basta ya que vía esta tenemos acceso al
 de nodos. Por último, también tenemos la dirección de la función comparadora definida
 por el usuario de la librería que explicamos antes.
 
-### Funcionamiento Interno de las Funciones del ABB
+### Funcionamiento de las Funciones del ABB
+Como verás a lo largo del informe, no he utilizado bucles, sino que, dada la estructura,
+era mucho más conveniente el uso de recursividad. Ahora bien, ¿Qué hay del tamaño 
+limitado del stack? Bueno, si quisiéramos usar el stack lo menos posible, algo
+que podríamos hacer es utilizar una pila para simular el stack del sistema operativo
+y, de esa manera, usar estructuras iterativas como _while_ y _for_ con el heap,
+que no tiene límite en ese aspecto. Sin embargo, este trabajo utiliza recursividad
+por motivos de simplicidad.
+
 #### abb_crear
+
 ```c
 abb_t *abb_crear(int (*comparador)(void *, void *))
 ```
+
 - Entrada: Recibe un puntero a una función comparadora.
 - Proceso:
 Verifica si comparador es NULL. Si lo es, retorna NULL para indicar que no se
@@ -254,9 +273,11 @@ Inicializa raiz como NULL y nodos como 0.
 - Salida: Retorna un puntero a la nueva estructura abb_t si la creación fue
 exitosa; de lo contrario, retorna NULL.
 #### abb_destruir
+
 ```c
 void abb_destruir(abb_t *abb)
 ```
+
 - Entrada: Recibe un puntero a un árbol abb.
 - Proceso:
 Llama a abb_destruir_todo para liberar todos los nodos del árbol y sus elementos.
@@ -277,14 +298,15 @@ De lo contrario, si usamos otro recorrido deberíamos almacenar en otro lugar
 la dirección de los elementos siguientes para no perderlos, lo cual haría 
 el proceso mucho más complicado. Obviamente, antes de borrar el nodo,
 aplicamos la función destructura (si fue pasada), para liberar los datos internos.
-Veamos cómo funciona:
-
-<div align="center">
-<img width="75%" src="img/destruir_todo.gif">
-</div>
+Para ver cómo funciona, referirse al **[gif de recorrido postorden](http://localhost:6419/#abb_iterar_postorden)**.
 
 Finalemente, libera la memoria ocupada por la estructura abb.
 - Salida: No retorna valor.
+
+**PS**: Realmente pensé en reautilizar la fucnión *abb_iterar_postorden* no 
+obstante al intentar implementarlo, notaba que el código se hacía cada vez
+más ofuscado, por ende, decidí hacer una función dedicada a la destrucción.
+
 #### abb_insertar
 ```c
 bool abb_insertar(abb_t *abb, void *elemento)
@@ -296,7 +318,42 @@ Llama a *interna_insertar*, que maneja la lógica de inserción y retorna true s
 el elemento se insertó correctamente. Su interna recorre el árbol para insertar
 el elemento en el lugar más adecuado haciendo una búsqueda binaria. Cuando
 encontramos la posición, colocamos el elemento.
-Si la inserción es exitosa, incrementa el contador de nodos (nodos).
+
+<div align="center">
+<img width="50%" src="img/insertar.gif">
+</div>
+
+Ahora que entendemos el concepto, veamos el código:
+
+```c
+
+bool interna_insertar(nodo_t **nodo, int (*comparador)(void *, void *),
+		      void *elemento)
+{
+	if (*nodo == NULL) {
+		*nodo = crear_nodo(elemento);
+		return true;
+	} else if (comparador(elemento, (*nodo)->elemento) > 0) {
+		return interna_insertar(&(*nodo)->der, comparador, elemento);
+
+	} else if (comparador(elemento, (*nodo)->elemento) < 0) {
+		return interna_insertar(&(*nodo)->izq, comparador, elemento);
+
+	} else if (comparador(elemento, (*nodo)->elemento) == 0) {
+		return interna_insertar(&(*nodo)->izq, comparador, elemento);
+	}
+
+	return false;
+```
+
+Como vemos, es muy tal como presenta el gif de arriba. Aún así, debemos notar
+algo importante, si un nodo con un elemento igual a otro nodo
+se quiere insertar (comparamos lo que almacenan
+las direcciones en memoria, no las direcciones en sí, a no ser que el programador
+lo defina así), este irá a la izquierda de su igual. Esto no es por nada en particular,
+es decisión del programador, podría ser a la derecha, o también podriámos tener
+un contador de repetidos en cada nodo.
+Finalmente, si la inserción es exitosa, incrementa el contador de nodos (nodos).
 - Salida: Retorna true si la inserción fue exitosa; de lo contrario, false.
 
 #### abb_quitar
@@ -320,12 +377,12 @@ en otras palabras, es el nodo con valor más cercano al nodo a borrar, pero del
 subárbol izquierdo. Veamos el ejemplo más complejo que se puede presentar:
 
 <div align="center">
-<img width="100%" src="img/quitar_caso_dos_hijos.svg">
+<img width="80%" src="img/quitar_caso_dos_hijos.svg">
 </div>
 
 Notemos algo interesante: el predecesor inorden **NUNCA** puede tener un hijo derecho,
 porque, supongamos que en vez de tener sólo el 18 con su hijo izquierdo, tenemos
-que su hijo derecho es el 19, entonces, ¡El 19 sería el nuevo predecesor!, por ende
+que su hijo derecho es el 19, entonces, ¡El 19 sería el nuevo predecesor! Por ende
 ya no usaríamos el 18 como muestra el diagrama, sino el 19.
 
 Con el resto de casos es
@@ -333,7 +390,46 @@ mucho más simple, si el nodo no tiene hijos, eliminamos el nodo y listo, y si e
 tiene un hijo, su nuevo padre pasa a ser el padre del nodo eliminado (parecido al
 caso más complejo de eliminación de dos hijos, en la línea azul).
 
-Finalmente, la función, libera la memoria del nodo encontrado y decrementa el
+```c
+bool abb_quitar(abb_t *abb, void *buscado, void **encontrado)
+{
+	if (abb == NULL)
+		return false;
+	if (abb->raiz == NULL)
+		return false;
+	nodo_t *anterior_encontrado = NULL;
+	nodo_t *nodo_encontrado = NULL;
+	nodo_encontrado = interna_obtener_nodo(
+		abb->raiz, buscado, abb->comparador, &anterior_encontrado);
+	if (nodo_encontrado == NULL)
+		return false;
+	if (encontrado)
+		*encontrado = nodo_encontrado->elemento;
+	if (solo_hijo_der(nodo_encontrado)) {
+		ajustar_punteros_hijo_der(abb, nodo_encontrado,
+					  anterior_encontrado);
+	} else if (solo_hijo_izq(nodo_encontrado)) {
+		ajustar_punteros_hijo_izq(abb, nodo_encontrado,
+					  anterior_encontrado);
+	} else if (tiene_dos_hijos(nodo_encontrado)) {
+		ajustar_punteros_dos_hijos(abb, nodo_encontrado,
+					   anterior_encontrado);
+	} else {
+		ajustar_punteros_sin_hijos(abb, nodo_encontrado,
+					   anterior_encontrado);
+	}
+	free(nodo_encontrado);
+	abb->nodos--;
+	return true;
+}
+```
+
+Como vemos, la función está definida según los distintos casos que se pueden
+presentar, notemos que se pasa el **abb**, el **nodo_encontrado** (el que queremos
+borrar) y el **anterior_encontrado**, esto porque, como vemos en el diagrama, 
+lo necesitamos para recomponer la estructura de nuestro árbol, sino, nos quedarían
+nodos sueltos.
+Finalmente, la función libera la memoria del nodo encontrado y decrementa el
 contador de nodos.
 - Salida: Retorna true si la eliminación fue exitosa.
 #### abb_obtener
@@ -347,16 +443,17 @@ Busca el nodo que contiene el elemento utilizando *interna_obtener_nodo*.
 Si no se encuentra el nodo, retorna NULL. La función interna utilizada
 hace una búsqeda binaria, es decir, si el buscado es mayor, vamos a la derecha;
 si el buscado es menor, vamos a la izquierda; si es igual, devolvemos el elemento
-contenido;
+contenido. Muy parecido a abb_insertar.
 - Salida: Retorna el elemento almacenado en el nodo encontrado o NULL si no se encontró.
+
 #### abb_cantidad
 ```c
 size_t abb_cantidad(abb_t *abb)
 ```
 - Entrada: Recibe un puntero al árbol abb.
-- Proceso:
-Verifica si abb es NULL. Si es así, retorna 0.
+- Proceso: Verifica si abb es NULL. Si es así, retorna 0.
 - Salida: Retorna el contador de nodos (nodos).
+
 #### abb_iterar_inorden
 ```c
 size_t abb_iterar_inorden(abb_t *abb, bool (*f)(void *, void *), void *ctx)
@@ -366,10 +463,43 @@ size_t abb_iterar_inorden(abb_t *abb, bool (*f)(void *, void *), void *ctx)
 Verifica si abb o su raíz son NULL, o si f es NULL. Si alguno lo es, retorna 0.
 Inicializa un booleano seguir_iterando en true y llama a
 interna_inorden_recursivo, que recorre el árbol y aplica la función f.
+Un ejemplo gráfico:
 
 <div align="center">
 <img width="50%" src="img/r_inorden.gif">
 </div>
+
+```c
+
+size_t interna_inorden_recursivo(nodo_t *nodo, bool (*f)(void *, void *),
+				 void *ctx, bool *seguir_iterando)
+{
+	if (nodo == NULL)
+		return 0;
+	if (!(*seguir_iterando))
+		return 0;
+	size_t invocaciones = 0;
+
+	invocaciones +=
+		interna_inorden_recursivo(nodo->izq, f, ctx, seguir_iterando);
+	if (!(*seguir_iterando))
+		return invocaciones;
+
+	*seguir_iterando = f(nodo->elemento, ctx);
+	invocaciones += 1;
+
+	if (!(*seguir_iterando))
+		return invocaciones;
+
+	invocaciones +=
+		interna_inorden_recursivo(nodo->der, f, ctx, seguir_iterando);
+
+	return invocaciones;
+}
+```
+Como vemos, primero vamos a la izquierda, luego aplicamos la función que devuelve
+si queremos seguir iterando o no, y luego vamos a la derecha. Finalmente,
+retornamos las invocaciones.
 
 - Salida: Retorna la cantidad de veces que se invocó la función f.
 #### abb_iterar_preorden
@@ -385,6 +515,7 @@ Llama a interna_preorden_recursivo para recorrer el árbol en preorden y aplicar
 <img width="50%" src="img/r_preorden.gif">
 </div>
 
+El código es similar al inorden, sólo que con el orden de invocación cambiado.
 - Salida: Retorna el número de invocaciones de f.
 #### abb_iterar_postorden
 ```c
@@ -394,7 +525,15 @@ size_t abb_iterar_postorden(abb_t *abb, bool (*f)(void *, void *), void *ctx)
 - Proceso:
 Comprueba las mismas condiciones que las funciones anteriores.
 Llama a interna_postorden_recursivo para recorrer el árbol en postorden y aplicar f.
+
+<div align="center">
+<img width="50%" src="img/r_postorden.gif">
+</div>
+
+El código es similar al inorden, sólo que con el orden de invocación cambiado.
+
 - Salida: Retorna la cantidad de veces que se llamó a f.
+
 #### abb_vectorizar_inorden
 ```c
 size_t abb_vectorizar_inorden(abb_t *abb, void **vector, size_t tamaño)
@@ -404,6 +543,36 @@ size_t abb_vectorizar_inorden(abb_t *abb, void **vector, size_t tamaño)
 Verifica si vector es NULL. Si lo es, retorna 0.
 Crea un contexto ctx_vectorizacion que almacena el vector, su tamaño y la posición actual.
 Llama a abb_iterar_inorden, pasando la función vectorizadora_por_iteracion, que se encarga de llenar el vector.
+
+Aprovechemos a ver la función _vectorizadora_por_iteracion_, ya que es común
+para el resto de abb_vectorizar:
+
+```c
+
+struct ctx_vectorizacion {
+	void **vector;
+	size_t posicion;
+	size_t tamanio;
+};
+bool vectorizadora_por_iteracion(void *dato, void *_ctx)
+{
+	struct ctx_vectorizacion *ctx = (struct ctx_vectorizacion *)_ctx;
+	bool resultado = false;
+	if (ctx->posicion < ctx->tamanio) {
+		ctx->vector[ctx->posicion] = dato;
+		ctx->posicion++;
+		resultado = true;
+	}
+	return resultado;
+}
+
+```
+Nada muy especial, definimos un contexto con el vector a rellenar, la posición
+actual y el tamaño. Por cada iteración,
+al vector se le asigna un dato y se incrementa la posición, deja de iterar
+cuando _resultado_ retorna false es decir, cuando la posición alcanza
+el tamaño del vector.
+
 - Salida: Retorna la cantidad de elementos que se guardaron en el vector.
 #### abb_vectorizar_preorden
 ```c
@@ -425,3 +594,8 @@ Realiza las mismas verificaciones que las funciones anteriores.
 Crea un contexto y llama a abb_iterar_postorden con la función vectorizadora_por_iteracion.
 - Salida: Retorna la cantidad de elementos que se guardaron en el vector.
 
+### Diagrama de memoria
+
+<div align="center">
+<img width="100%" src="img/heap_stack_abb.svg">
+</div>
